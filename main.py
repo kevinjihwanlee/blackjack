@@ -27,7 +27,20 @@ def generateDeck():
 
 def dealCard(deck, player):
   player.hand.append(deck.pop())
+  # todo - edge case of deck being empty
 
+def hit(deck, player):
+  # todo - implement 
+  pass
+
+def stand(deck, player):
+  # todo - implement
+  pass
+
+def surrender(deck, player): 
+  # todo - implement
+  pass
+  
 def displayHand(player):
   if player.isDealer:
     print 'Dealer\'s hand: {0} HIDDEN'.format(player.hand[0].name)
@@ -47,7 +60,7 @@ if __name__ == '__main__':
   players = []
   players.append(dealer)
   players.append(playerOne)
-  for x in range(0, 2):
+  for x in range(0, len(players)):
     for player in players:
       dealCard(deck, player)
   displayHand(dealer)
