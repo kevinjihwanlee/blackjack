@@ -31,7 +31,5 @@ class BlackjackTests(unittest.TestCase):
     self.assertEqual(self.faceCard.value, 10)
     self.assertTrue(1 or 11 in self.ace.value)
   
-  
-
 if __name__ == '__main__':
   unittest.main()
