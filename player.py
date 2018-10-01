@@ -34,16 +34,14 @@ class Player(object):
         handValue += card.value[1]
       else:
         handValue += card.value
-      if handValue > 21:
-        # see if hand value can be lower than 21 with previous aces treated as 1
-        for a in self.hand:
-          if a.name == 'Ace':
-            handValue -= 10
-            if handValue <= 21:
-              break
-        # check if hand value still too large after ace readjustment
-        if handValue > 21:
-          self.bust = True
+    if handValue > 21:
+      # see if hand value can be lower than 21 with previous aces treated as 1
+      for card in self.hand:
+        if isinstance(card.value, (list,)):
+          handValue -= 10
+          if handValue <= 21:
+            return handValue
+      self.bust = True
     return handValue
 
   @property

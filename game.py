@@ -36,8 +36,9 @@ class Game(object):
     
   def hit(self, player):
     self.dealCard(player)
-    player.checkHand()
-  
+    handValue = player.checkHand()
+    if player.bust and not player.isAI:
+      print '*** You bust with a hand value of {0}. ***'.format(handValue)
   def stand(self, player):
     player.done = True
 
@@ -45,8 +46,7 @@ class Game(object):
     if bj:
       print '*** BLACKJACK! {0} has automatically won! ***'.format(player.name)
     else:
-      # todo
-      print '*** WINNER!'
+      print '*** {0} wins! ***'.format(player.name)
   
   def start(self):
     seed()
@@ -65,51 +65,65 @@ class Game(object):
     # check initial deal for a blackjack winner
     print '*** INTIIAL DEAL ***'
     for player in self.players:
-      player.displayHand()
-      handValue = player.checkHand()
-      if handValue == 21:
-        self.awardWin(player, True)
-        return
+      if not player.isDealer:
+        player.displayHand()
+        handValue = player.checkHand()
+        if handValue == 21:
+          self.awardWin(player, True)
+          return
     # game loop
     gameActive = True
     print '*** GAME START ***'
     while gameActive:
       activePlayers = 0
       for player in self.players:
-        handValue = player.checkHand()
-        if handValue == 21:
-          self.awardWin(player, True)
-          return
-        if not player.done and not player.bust:
-          if player.isAI:
-            decisions = [self.hit, self.stand]
-            randomDecision = choice(decisions)(player)
-          elif not player.isDealer:
-            decision = raw_input('Would you like to HIT or STAND? ')
-            if decision == 'HIT':
-              self.hit(player)
-              if self.players[0].bust:
-                print "*** You have lost this round! ***"
-                break
-            elif decision == 'STAND':
-              self.stand(player)
-            print '******************'
+        if not player.isDealer:
+          handValue = player.checkHand()
           if not player.done and not player.bust:
-            activePlayers += 1
+            if player.isAI:
+              decisions = [self.hit, self.stand]
+              randomDecision = choice(decisions)(player)
+            else:
+              while True:
+                decision = raw_input('Would you like to HIT or STAND? ')
+                if decision.lower() == 'hit':
+                  self.hit(player)
+                  break
+                elif decision.lower() == 'stand':
+                  self.stand(player)
+                  break
+                else:
+                  print 'Please type a valid action.'
+              print '******************'
+            if not player.done and not player.bust:
+              activePlayers += 1
         player.displayHand()
       print '******************'
-      if activePlayers == 1:
+      if activePlayers == 0:
         break
     print '*** DEALING ENDS ***'
-    dealer = self.players[-1]
-    handValue = dealer.checkHand()
-    while handValue <= 17:
+    dealer = self.players.pop()
+    remainingPlayers = []
+    for player in self.players:
+      if not player.bust:
+        remainingPlayers.append(player)
+    dealerValue = dealer.checkHand()
+    while dealerValue <= 17:
       self.dealCard(dealer)
-      handValue = dealer.checkHand()
+      dealerValue = dealer.checkHand()
     dealer.isDealer = False
     dealer.displayHand()
-    print ''
-    if handValue > 21:
-      print 'Dealer bust, everybody wins!'
+    if dealerValue > 21:
+      print '*** Dealer bust! ***'
+      for player in remainingPlayers:
+        print '*** {0} wins! ***'.format(player.name)
     else:
+      for player in remainingPlayers:
+        playerValue = player.checkHand()
+        if playerValue >= dealerValue:
+          self.awardWin(player, False)
+        else:
+          print '*** {0} loses against DEALER, {1} vs {2}. ***'.format(player.name, playerValue, dealerValue)
+
+      
      
