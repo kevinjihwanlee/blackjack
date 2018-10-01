@@ -65,12 +65,11 @@ class Game(object):
     # check initial deal for a blackjack winner
     print '*** INTIIAL DEAL ***'
     for player in self.players:
-      if not player.isDealer:
-        player.displayHand()
-        handValue = player.checkHand()
-        if handValue == 21:
-          self.awardWin(player, True)
-          return
+      player.displayHand()
+      handValue = player.checkHand()
+      if handValue == 21 and not player.isDealer:
+        self.awardWin(player, True)
+        return
     # game loop
     gameActive = True
     print '*** GAME START ***'
@@ -120,8 +119,10 @@ class Game(object):
     else:
       for player in remainingPlayers:
         playerValue = player.checkHand()
-        if playerValue >= dealerValue:
+        if playerValue > dealerValue:
           self.awardWin(player, False)
+        elif playerValue == dealerValue:
+          print '*** {0} ties against DEALER, {1} vs {2}. ***'.format(player.name, playerValue, dealerValue)
         else:
           print '*** {0} loses against DEALER, {1} vs {2}. ***'.format(player.name, playerValue, dealerValue)
 
